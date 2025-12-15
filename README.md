@@ -1,113 +1,73 @@
-# Markopolo Frontend Engineer Job Assessment: Automation Rules Task Builder
+# React + TypeScript + Vite
 
-## Overview
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-This project implements the "Task portion of the Automation Rules" as specified in the assessment. It enables users to create automation rules for advertisements with multiple conditions using AND/OR logic, including support for nested conditions. The UI allows adding tasks (e.g., pause, resume, adjust bids/budgets), building complex rule structures, and provides real-time previews and visual feedback (e.g., condition evaluation badges).
+Currently, two official plugins are available:
 
-The implementation adheres to the requirements:
-- Built with **React** and **Vite** for fast development and bundling.
-- **TypeScript** for type safety across components, Redux actions, and data models.
-- **Redux** (with RTK) for effective state management of tasks and rules.
-- **SCSS** for modular styling, integrated with **Mantine** as the preferred CSS framework.
-- Responsive design adapting to different screen sizes.
-- Modular, readable, reusable, and maintainable code following best practices (e.g., separation of concerns, error handling for edge cases like empty groups).
-- Integration of structured data from the Notion schema (types defined in `src/types/index.ts`).
-- Visual feedback (e.g., green/red badges for mock rule evaluation) and immediate UI updates on user actions.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-The UI faithfully recreates the provided Figma designs, including task cards, condition/group builders, AND/OR badges, preview sections, and modal-based additions.
+## React Compiler
 
-## Tech Stack
+The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
 
-- **Frontend Framework**: React 18+ with Vite
-- **Language**: TypeScript 5+
-- **State Management**: Redux Toolkit
-- **Styling**: SCSS + Mantine (v7+)
-- **UI Components**: Mantine Core, Hooks, Notifications, Modals
-- **Icons**: @tabler/icons-react
-- **Utils**: Custom helpers for rule preview and evaluation (mocked for demo)
+## Expanding the ESLint configuration
 
-## Prerequisites
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-- Node.js (v18+ recommended)
-- npm (v9+) or yarn/pnpm
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-## Installation
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-1. Clone the repository:
-git clone https://github.com/PeaceOloruntoba/glowing-umbrella
-cd glowing-umbrella
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-2. Install dependencies:
-npm install
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-## Running the Application
-
-1. Start the development server:
-npm run dev
-
-2. Open your browser and navigate to `http://localhost:5173` (or the port shown in the terminal).
-
-The app will hot-reload on code changes. To build for production:
-npm run build
-
-Serve the build with:
-npm run preview
-
-
-## Features
-
-- **Task Management**: Add, edit, and remove tasks via modals. Each task selects an action (e.g., Pause, Increase Bid) and object type (Campaign, Adset, Ad).
-- **Rule Building**: Recursive component for creating nested conditions and groups:
-  - **Conditions**: Value-based or metric-based with metric/range/operator/value selectors.
-  - **Groups**: AND/OR logic with nested children; supports arbitrary depth.
-  - **Add/Remove**: + Condition / + Group buttons; trash icons for removal.
-- **Visual Feedback**: 
-  - Badges show AND (blue) / OR (orange).
-  - Green/red badges for condition results (mock evaluation; updates on change).
-  - Color changes on condition buttons/groups per Figma.
-- **Preview**: Real-time textual preview of rule logic (e.g., "(Today Spend > 100 AND Yesterday Purchases < 50) OR ...").
-- **Responsiveness**: Adapts to mobile/desktop; selects stack vertically on small screens.
-- **Error Handling & Edge Cases**:
-  - Prevents invalid inputs (e.g., negative values via NumberInput).
-  - Handles empty tasks/groups with alerts.
-  - Graceful deep nesting (fading opacity via CSS).
-  - Immediate UI sync via Redux dispatches.
-
-## Project Structure
-├── public/                 # Static assets
-├── src/
-│   ├── components/         # Main UI (AutomationRules.tsx)
-│   ├── redux/              # Store, slices (taskSlice.ts)
-│   ├── types/              # TS interfaces (index.ts)
-│   ├── utils/              # Helpers (ruleUtils.ts)
-│   ├── styles/             # Global SCSS (index.scss, variables.scss)
-│   ├── App.tsx
-│   └── main.tsx
-├── index.html
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
-
-
-## Evaluation Notes
-
-This implementation covers all requirements:
-1. Figma-to-React conversion with SCSS/Mantine styling.
-2. Responsive layout.
-3. TypeScript typing for data/actions.
-4. Redux store/actions/reducers for task payload.
-5. Visual feedback (badges, colors) and immediate updates.
-6. Code quality: Modular (e.g., Condition sub-component), readable (clear naming), reusable (recursive RuleBuilder), maintainable (separated utils/Redux).
-7. Edge cases: Empty states, invalid inputs, nesting limits (UI-guided).
-
-Tested on Chrome/Firefox; mock evaluation simulates real metrics.
-
-## License
-
-For assessment purposes only. © Peace Oloruntoba 2025.
-
----
-
-*Built with ❤️ for Markopolo. Good luck!*
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
