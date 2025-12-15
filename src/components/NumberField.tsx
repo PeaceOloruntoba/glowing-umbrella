@@ -1,18 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 
 export default function NumberField({
   value,
   onChange,
   prefixIcon,
-  placeholder = '0',
+  placeholder = "0",
+  onDelete,
 }: {
-  value: number | '';
+  value: number | "";
   onChange: (v: number) => void;
   prefixIcon?: React.ReactNode;
   placeholder?: string;
+  onDelete?: () => void;
 }) {
-  const [mode, setMode] = useState<'value' | 'metric'>('value');
-  const [metricText, setMetricText] = useState<string>('');
+  const [mode, setMode] = useState<"value" | "metric">("value");
+  const [metricText, setMetricText] = useState<string>("");
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -21,24 +23,26 @@ export default function NumberField({
       if (!menuRef.current) return;
       if (!menuRef.current.contains(e.target as Node)) setOpen(false);
     }
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
   return (
     <div className="w-full bg-white border border-gray-300 flex items-center gap-2 px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 h-full relative">
-      {mode === 'value' ? (
+      {mode === "value" ? (
         <>
-      {prefixIcon}
-        <input
-          type="number"
-          min={0}
-          step="any"
-          value={value}
-          onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
-          placeholder={placeholder}
-          className="w-full outline-none border-none text-sm"
-        />
+          {prefixIcon}
+          <input
+            type="number"
+            min={0}
+            step="any"
+            value={value}
+            onChange={(e) =>
+              onChange(e.target.value === "" ? 0 : Number(e.target.value))
+            }
+            placeholder={placeholder}
+            className="w-full outline-none border-none text-sm"
+          />
         </>
       ) : (
         <input
@@ -60,17 +64,29 @@ export default function NumberField({
         >
           <i className="fa fa-gear" />
         </button>
-        <i className="fa fa-trash hover:text-red-600 cursor-pointer" />
+        <button
+          type="button"
+          className="p-1 hover:text-red-600 cursor-pointer"
+          onClick={onDelete}
+          title="Delete condition"
+        >
+          <i className="fa fa-trash" />
+        </button>
       </span>
       {open && (
-        <div ref={menuRef} className="absolute right-0 top-full mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+        <div
+          ref={menuRef}
+          className="absolute right-0 top-full mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-10"
+        >
           <ul className="py-1 text-sm">
             <li>
               <button
                 type="button"
-                className={`w-full text-left px-3 py-2 hover:bg-gray-50 ${mode === 'value' ? 'text-blue-600' : ''}`}
+                className={`w-full text-left px-3 py-2 hover:bg-gray-50 ${
+                  mode === "value" ? "text-blue-600" : ""
+                }`}
                 onClick={() => {
-                  setMode('value');
+                  setMode("value");
                   setOpen(false);
                 }}
               >
@@ -80,9 +96,11 @@ export default function NumberField({
             <li>
               <button
                 type="button"
-                className={`w-full text-left px-3 py-2 hover:bg-gray-50 ${mode === 'metric' ? 'text-blue-600' : ''}`}
+                className={`w-full text-left px-3 py-2 hover:bg-gray-50 ${
+                  mode === "metric" ? "text-blue-600" : ""
+                }`}
                 onClick={() => {
-                  setMode('metric');
+                  setMode("metric");
                   setOpen(false);
                 }}
               >
