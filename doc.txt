@@ -1,0 +1,209 @@
+Markopolo Frontend Engineer Job Assessment 
+Instructions: 
+This assessment is designed to thoroughly evaluate your skills in Frontend Engineering. 
+Timeframe: You have four (4) days to complete the tasks. 
+Please read and understand all instructions carefully before commencing. 
+Expectations: 
+We expect you to demonstrate proficiency in the following areas: 
+● Building the application using React and Vite. 
+● Ensuring type safety with TypeScript. 
+● Effective state management through Redux. 
+● Styling implementation using SCSS. 
+● Preference for Mantine as the CSS framework. 
+● Strict adherence to best practices, including modular, readable, reusable, and 
+maintainable code. 
+Scenario: 
+Automation rules in Markopolo enable users to define specific conditions and criteria for their 
+advertisements. These rules empower Markopolo to automatically initiate or halt campaigns, as 
+well as adjust bid amounts and budgets based on predefined parameters. 
+Task: 
+Your task is to implement the “Task portion of the Automation Rules”, enabling users to create 
+rules with multiple conditions using AND or OR logic, with support for nested conditions. 
+Requirements: 
+1. Convert the provided Figma design into a React component. 
+2. Implement the layout and styling according to the design using SCSS. 
+3. Ensure the component is responsive and adapts to different screen sizes. 
+4. Apply TypeScript typing where necessary. 
+5. Integrate structured data format from the Notion file into your React application, utilizing 
+Redux for state management. 
+6. Establish a  Redux store and necessary actions/reducers for managing the task payload 
+data. 
+7. Define TypeScript types for the data. 
+8. Provide visual feedback to users when an action is performed (e.g. changing the color of 
+the condition button, Preview of the automation task actions). 
+9. Update the UI to reflect the user's actions immediately. 
+Resources: 
+1. Figma design file for UI/UX 
+2. Notion file for type schema 
+Submission: 
+To submit your assessment: 
+1. Create a Git repository for your project and commit your code. 
+2. Make the repository public & share the link with us for evaluation. 
+3. Include a README file with instructions on how to run your application locally. 
+Evaluation Criteria: 
+Your assessment will be evaluated based on the following criteria: 
+1. Code quality and organization. 
+2. Adherence to React, TypeScript, SCSS, and Redux best practices. 
+3. Accuracy and completeness of the tasks. 
+4. Faithfulness of the user interface to the provided Figma design. 
+5. Thoughtful error handling and consideration of edge cases. 
+Good luck with your assessment! 
+
+
+
+Notion:
+export type TypeOperator = 'lte' | 'gte' | 'eq' | 'ne' | 'lt' | 'gt';
+
+export type TypeRange =
+  | 'yesterday'
+  | 'today'
+  | 'last_3_days'
+  | 'last_7_days'
+  | 'last_15_days'
+  | 'last_30_days';
+
+type TypeRuleUnit = {
+  ruleType: 'valueBased' | 'metricBased';
+
+  payload: {
+    valueBased?: {
+      metric: string;
+      range: TypeRange;
+      operator: TypeOperator;
+      value: number;
+      result?: boolean;
+    };
+    metricBased?: {
+      metric: string;
+      range: TypeRange;
+      operator: TypeOperator;
+      comparisonMetricWeight: number;
+      comparisonMetric: string;
+      comparisonMetricRange: string;
+      result?: boolean;
+    };
+  };
+
+  relation?: 'and' | 'or';
+  children?: Array<TypeRuleUnit>;
+};
+
+type TypeTask = {
+  action:
+    | 'pause'
+    | 'resume'
+    | 'increase_budget'
+    | 'decrease_budget'
+    | 'extend_end_date_by_days'
+    | 'add_to_name'
+    | 'remove_from_name'
+    | 'increase_bid'
+    | 'decrease_bid'
+    | 'change_creative'
+    | 'notify';
+  objectType: 'campaign' | 'adset' | 'ad';
+  rule: TypeRuleUnit;
+};
+
+export type TypeAdRule = {
+  payload: {
+    tasks: Array<TypeTask>;
+  };
+};
+
+
+
+
+
+
+{
+  tasks: [
+    {
+      action: 'pause',
+			objectType: 'adset',
+      rule: {
+        relation: 'and',
+        children: [
+          {
+            ruleType: 'valueBased',
+            payload: {
+              valueBased: {
+                metric: 'spend',
+                range: 'today',
+                operator: 'gt',
+                value: 100
+              }
+            },
+            relation: '',
+            children: []
+          },
+          {
+            ruleType: 'valueBased',
+            payload: {
+              valueBased: {
+                metric: 'purchases',
+                range: 'yesterday',
+                operator: 'lt',
+                value: 50
+              }
+            },
+            relation: '',
+            children: []
+          },
+          {
+            relation: 'or',
+            children: [
+              {
+                ruleType: 'valueBased',
+                payload: {
+                  valueBased: {
+                    metric: 'impressions',
+                    range: 'last_3_days',
+                    operator: 'lte',
+                    value: 500
+                  }
+                },
+                relation: '',
+                children: []
+              },
+              {
+                ruleType: 'valueBased',
+                payload: {
+                  valueBased: {
+                    metric: 'purchase_roas',
+                    range: 'last_7_days',
+                    operator: 'eq',
+                    value: 20
+                  }
+                },
+                relation: '',
+                children: []
+              }
+            ]
+          },
+          {
+            ruleType: 'valueBased',
+            payload: {
+              valueBased: {
+                metric: 'clicks',
+                range: 'today',
+                operator: 'lt',
+                value: 300
+              }
+            },
+            relation: '',
+            children: []
+          }
+        ]
+      }
+    }
+  ]
+}
+
+
+
+
+
+
+
+the settings on numberfield is a dropdown... that switches between value, and metric, if value, then number input, if metric then text input with placeholder yesterday
