@@ -55,9 +55,25 @@ const Condition: React.FC<ConditionProps> = ({ rule, onUpdate, level = 0 }) => {
   const handleChange = (key: keyof ValueBasedPayload, value: any) => {
     const newPayload = { ...rule.payload };
     if (ruleType === "valueBased") {
-      newPayload.valueBased = { ...newPayload.valueBased, [key]: value };
+      newPayload.valueBased = {
+        metric: newPayload.valueBased?.metric || ("spend" as const),
+        range: newPayload.valueBased?.range || ("today" as const),
+        operator: newPayload.valueBased?.operator || ("gte" as const),
+        value: newPayload.valueBased?.value || 0,
+        result: newPayload.valueBased?.result || false,
+        [key]: value,
+      };
     } else {
-      newPayload.metricBased = { ...newPayload.metricBased, [key]: value };
+      newPayload.metricBased = {
+        metric: newPayload.metricBased?.metric || ("spend" as const),
+        range: newPayload.metricBased?.range || ("today" as const),
+        operator: newPayload.metricBased?.operator || ("gte" as const),
+        comparisonMetricWeight: newPayload.metricBased?.comparisonMetricWeight || 0,
+        comparisonMetric: newPayload.metricBased?.comparisonMetric || ("impressions" as const),
+        comparisonMetricRange: newPayload.metricBased?.comparisonMetricRange || ("yesterday" as const),
+        result: newPayload.metricBased?.result || false,
+        [key]: value,
+      };
     }
     onUpdate({ ...rule, payload: newPayload, ruleType });
     evaluateRule({ ...rule, payload: newPayload, ruleType }); // Trigger feedback
