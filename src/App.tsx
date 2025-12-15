@@ -66,6 +66,10 @@ function App() {
           </div>
         </div>
       </div>
+      <button className="bg-gray-200 gap-2 flex items-center p-2 rounded lg px-4">
+        <i className="fa fa-plus"></i>
+        <span>Task</span>
+      </button>
     </div>
   );
 }
