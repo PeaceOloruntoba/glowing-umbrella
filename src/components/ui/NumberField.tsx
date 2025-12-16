@@ -54,7 +54,6 @@ export default function NumberField({
         />
       )}
       <span className="flex gap-3 text-gray-500 items-center">
-        {/* settings dropdown to switch between value and metric */}
         <button
           type="button"
           className="p-1 hover:text-gray-700 cursor-pointer"
