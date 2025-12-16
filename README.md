@@ -91,16 +91,8 @@ npm run preview
 └── README.md
 
 
-## Evaluation Notes
-
-This implementation covers all requirements:
-1. Figma-to-React conversion with SCSS/Mantine styling.
-2. Responsive layout.
-3. TypeScript typing for data/actions.
-4. Redux store/actions/reducers for task payload.
-5. Visual feedback (badges, colors) and immediate updates.
-6. Code quality: Modular (e.g., Condition sub-component), readable (clear naming), reusable (recursive RuleBuilder), maintainable (separated utils/Redux).
-7. Edge cases: Empty states, invalid inputs, nesting limits (UI-guided).
+## Notes:
+Please check the main branch for the fully working tailwindcss implementation with proper styling.
 
 Tested on Chrome/Firefox; mock evaluation simulates real metrics.
 
