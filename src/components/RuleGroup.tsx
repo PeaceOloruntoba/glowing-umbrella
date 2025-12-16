@@ -23,222 +23,6 @@ export function isCurrency(metric: string) {
   return ["cost", "spend", "cpc", "cpm"].includes(metric);
 }
 
-export default function RuleGroupView({
-  node,
-  metricOptions,
-  rangeOptions,
-  operatorOptions,
-  onChange,
-  onAddCondition,
-  onAddGroup,
-  onToggleRelation,
-  onDeleteCondition,
-}: {
-  node: RuleGroup;
-  metricOptions: Option[];
-  rangeOptions: Option[];
-  operatorOptions: Option[];
-  onChange: (next: RuleGroup) => void;
-  onAddCondition: () => void;
-  onAddGroup: () => void;
-  onToggleRelation: () => void;
-  onDeleteCondition: (id: string) => void;
-}) {
-  return (
-    <div className="flex items-start gap-4 w-full">
-      {/* Vertical AND/OR for this group spanning its children */}
-      {node.children.length > 1 && (
-        <button
-          type="button"
-          onClick={onToggleRelation}
-          className={`vertical self-stretch flex gap-2 justify-center items-center text-white font-semibold px-4 py-2 ${
-            node.relation === "and" ? "bg-blue-600" : "bg-orange-500"
-          }`}
-          title="Toggle AND/OR"
-        >
-          <i className="fa fa-plus"></i>
-          <span>{node.relation.toUpperCase()}</span>
-        </button>
-      )}
-
-      <div className="flex flex-col gap-3 w-full">
-        {node.children.map((child, _idx) => {
-          if (child.type === "condition") {
-            return (
-              <div
-                key={child.id}
-                className="flex flex-wrap items-stretch justify-start w-full shadow-md"
-              >
-                <Dropdown
-                  value={child.metric}
-                  onChange={(v) => {
-                    const next = {
-                      ...node,
-                      children: node.children.map((c) =>
-                        c.id === child.id
-                          ? { ...(c as RuleCondition), metric: v }
-                          : c
-                      ),
-                    };
-                    onChange(next);
-                  }}
-                  options={metricOptions}
-                  className="w-56"
-                  buttonClassName="h-12"
-                  leftIcon={<i className="fa fa-bars text-gray-500" />}
-                />
-                <Dropdown
-                  value={child.range}
-                  onChange={(v) => {
-                    const next = {
-                      ...node,
-                      children: node.children.map((c) =>
-                        c.id === child.id
-                          ? { ...(c as RuleCondition), range: v }
-                          : c
-                      ),
-                    };
-                    onChange(next);
-                  }}
-                  options={rangeOptions}
-                  className="w-52"
-                  buttonClassName="h-12"
-                />
-                <Dropdown
-                  value={child.operator}
-                  onChange={(v) => {
-                    const next = {
-                      ...node,
-                      children: node.children.map((c) =>
-                        c.id === child.id
-                          ? { ...(c as RuleCondition), operator: v }
-                          : c
-                      ),
-                    };
-                    onChange(next);
-                  }}
-                  options={operatorOptions}
-                  className="w-28"
-                  buttonClassName="h-12"
-                />
-                <div className="flex-1 min-w-40">
-                  <NumberField
-                    value={child.value}
-                    onChange={(n: any) => {
-                      const next = {
-                        ...node,
-                        children: node.children.map((c) =>
-                          c.id === child.id
-                            ? { ...(c as RuleCondition), value: n }
-                            : c
-                        ),
-                      };
-                      onChange(next);
-                    }}
-                    prefixIcon={
-                      isCurrency(child.metric) ? (
-                        <i className="fa fa-dollar text-gray-500" />
-                      ) : undefined
-                    }
-                    onDelete={() => onDeleteCondition(child.id)}
-                  />
-                </div>
-              </div>
-            );
-          }
-          // child is a group => recurse
-          return (
-            <RuleGroupView
-              key={child.id}
-              node={child}
-              metricOptions={metricOptions}
-              rangeOptions={rangeOptions}
-              operatorOptions={operatorOptions}
-              onChange={(g) => {
-                const next = {
-                  ...node,
-                  children: node.children.map((c) =>
-                    c.id === child.id ? g : c
-                  ),
-                };
-                onChange(next);
-              }}
-              onAddCondition={() => {
-                const next = {
-                  ...child,
-                  children: [...child.children, makeDefaultCondition()],
-                };
-                const parent = {
-                  ...node,
-                  children: node.children.map((c) =>
-                    c.id === child.id ? next : c
-                  ),
-                };
-                onChange(parent);
-              }}
-              onAddGroup={() => {
-                const next = {
-                  ...child,
-                  children: [...child.children, makeDefaultGroup()],
-                };
-                const parent = {
-                  ...node,
-                  children: node.children.map((c) =>
-                    c.id === child.id ? next : c
-                  ),
-                };
-                onChange(parent);
-              }}
-              onToggleRelation={() => {
-                const next = {
-                  ...child,
-                  relation: child.relation === "and" ? "or" : "and",
-                };
-                const parent = {
-                  ...node,
-                  children: node.children.map((c) =>
-                    c.id === child.id ? next : c
-                  ),
-                };
-                onChange(parent);
-              }}
-              onDeleteCondition={(id) => {
-                const next = {
-                  ...child,
-                  children: child.children.filter((c) => c.id !== id),
-                };
-                const parent = {
-                  ...node,
-                  children: node.children.map((c) =>
-                    c.id === child.id ? next : c
-                  ),
-                };
-                onChange(parent);
-              }}
-            />
-          );
-        })}
-
-        {/* Footer buttons inside this group */}
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-50 text-sm"
-            onClick={onAddCondition}
-          >
-            <i className="fa fa-plus" /> Condition
-          </button>
-          <button
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-50 text-sm"
-            onClick={onAddGroup}
-          >
-            <i className="fa fa-plus" /> Group
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function makeDefaultCondition(): RuleCondition {
   return {
     id: Math.random().toString(36).slice(2, 9),
@@ -258,3 +42,229 @@ export function makeDefaultGroup(): RuleGroup {
     children: [makeDefaultCondition()],
   };
 }
+
+export default function RuleGroupView({
+  node,
+  metricOptions,
+  rangeOptions,
+  operatorOptions,
+  onChange,
+  onAddCondition,
+  onAddGroup,
+  onToggleRelation,
+  onDeleteCondition,
+  isRoot = false,
+}: {
+  node: RuleGroup;
+  metricOptions: Option[];
+  rangeOptions: Option[];
+  operatorOptions: Option[];
+  onChange: (next: RuleGroup) => void;
+  onAddCondition: () => void;
+  onAddGroup: () => void;
+  onToggleRelation: () => void;
+  onDeleteCondition: (id: string) => void;
+  isRoot?: boolean;
+}) {
+  return (
+    <div className="w-full">
+      <div className="flex items-start gap-4 w-full">
+        {/* Vertical AND/OR for this group */}
+        {node.children.length > 1 && (
+          <button
+            type="button"
+            onClick={onToggleRelation}
+            className={`vertical self-stretch flex gap-2 justify-center items-center text-white font-semibold px-4 py-2 ${
+              node.relation === "and" ? "bg-blue-600" : "bg-orange-500"
+            }`}
+            title="Toggle AND/OR"
+          >
+            <i className="fa fa-plus"></i>
+            <span>{node.relation.toUpperCase()}</span>
+          </button>
+        )}
+
+        <div className="flex flex-col gap-3 w-full">
+          {node.children.map((child) => {
+            if (child.type === "condition") {
+              return (
+                <div
+                  key={child.id}
+                  className="flex flex-wrap items-stretch justify-start w-full shadow-md"
+                >
+                  <Dropdown
+                    value={child.metric}
+                    onChange={(v) => {
+                      const next = {
+                        ...node,
+                        children: node.children.map((c) =>
+                          c.id === child.id
+                            ? { ...(c as RuleCondition), metric: v }
+                            : c
+                        ),
+                      };
+                      onChange(next);
+                    }}
+                    options={metricOptions}
+                    className="w-56"
+                    buttonClassName="h-12"
+                    leftIcon={<i className="fa fa-bars text-gray-500" />}
+                  />
+                  <Dropdown
+                    value={child.range}
+                    onChange={(v) => {
+                      const next = {
+                        ...node,
+                        children: node.children.map((c) =>
+                          c.id === child.id
+                            ? { ...(c as RuleCondition), range: v }
+                            : c
+                        ),
+                      };
+                      onChange(next);
+                    }}
+                    options={rangeOptions}
+                    className="w-52"
+                    buttonClassName="h-12"
+                  />
+                  <Dropdown
+                    value={child.operator}
+                    onChange={(v) => {
+                      const next = {
+                        ...node,
+                        children: node.children.map((c) =>
+                          c.id === child.id
+                            ? { ...(c as RuleCondition), operator: v }
+                            : c
+                        ),
+                      };
+                      onChange(next);
+                    }}
+                    options={operatorOptions}
+                    className="w-28"
+                    buttonClassName="h-12"
+                  />
+                  <div className="flex-1 min-w-40">
+                    <NumberField
+                      value={child.value}
+                      onChange={(n: number) => {
+                        const next = {
+                          ...node,
+                          children: node.children.map((c) =>
+                            c.id === child.id
+                              ? { ...(c as RuleCondition), value: n }
+                              : c
+                          ),
+                        };
+                        onChange(next);
+                      }}
+                      prefixIcon={
+                        isCurrency(child.metric) ? (
+                          <i className="fa fa-dollar text-gray-500" />
+                        ) : undefined
+                      }
+                      onDelete={() => onDeleteCondition(child.id)}
+                    />
+                  </div>
+                </div>
+              );
+            }
+
+            // Handle nested group
+            const childGroup = child as RuleGroup;
+            return (
+              <RuleGroupView
+                key={childGroup.id}
+                node={childGroup}
+                metricOptions={metricOptions}
+                rangeOptions={rangeOptions}
+                operatorOptions={operatorOptions}
+                onChange={(updatedGroup) => {
+                  const next: RuleGroup = {
+                    ...node,
+                    children: node.children.map((c) =>
+                      c.id === childGroup.id ? updatedGroup : c
+                    ),
+                  };
+                  onChange(next);
+                }}
+                onAddCondition={() => {
+                  const next: RuleGroup = {
+                    ...childGroup,
+                    children: [...childGroup.children, makeDefaultCondition()],
+                  };
+                  const parent: RuleGroup = {
+                    ...node,
+                    children: node.children.map((c) =>
+                      c.id === childGroup.id ? next : c
+                    ),
+                  };
+                  onChange(parent);
+                }}
+                onAddGroup={() => {
+                  const next: RuleGroup = {
+                    ...childGroup,
+                    children: [...childGroup.children, makeDefaultGroup()],
+                  };
+                  const parent: RuleGroup = {
+                    ...node,
+                    children: node.children.map((c) =>
+                      c.id === childGroup.id ? next : c
+                    ),
+                  };
+                  onChange(parent);
+                }}
+                onToggleRelation={() => {
+                  const next: RuleGroup = {
+                    ...childGroup,
+                    relation: childGroup.relation === "and" ? "or" : "and",
+                  };
+                  const parent: RuleGroup = {
+                    ...node,
+                    children: node.children.map((c) =>
+                      c.id === childGroup.id ? next : c
+                    ),
+                  };
+                  onChange(parent);
+                }}
+                onDeleteCondition={(id) => {
+                  const next: RuleGroup = {
+                    ...childGroup,
+                    children: childGroup.children.filter((c) => c.id !== id),
+                  };
+                  const parent: RuleGroup = {
+                    ...node,
+                    children: node.children.map((c) =>
+                      c.id === childGroup.id ? next : c
+                    ),
+                  };
+                  onChange(parent);
+                }}
+                isRoot={false}
+              />
+            );
+          })}
+
+          {/* Add buttons only at the root level */}
+          {isRoot && (
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-50 text-sm"
+                onClick={onAddCondition}
+              >
+                <i className="fa fa-plus" /> Condition
+              </button>
+              <button
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-50 text-sm"
+                onClick={onAddGroup}
+              >
+                <i className="fa fa-plus" /> Group
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+

@@ -1,5 +1,9 @@
 import Dropdown, { type Option } from "./ui/Dropdown";
-import RuleGroupView, { type RuleGroup, makeDefaultGroup } from "./RuleGroup";
+import RuleGroupView, {
+  makeDefaultCondition,
+  makeDefaultGroup,
+  type RuleGroup,
+} from "./RuleGroup";
 
 export default function TaskCard({
   value,
@@ -62,11 +66,12 @@ export default function TaskCard({
         metricOptions={metricOptions}
         rangeOptions={rangeOptions}
         operatorOptions={operatorOptions}
-        onChange={(root: any) => onChange({ ...value, root })}
+        isRoot
+        onChange={(root: RuleGroup) => onChange({ ...value, root })}
         onAddCondition={() => {
           const root = {
             ...value.root,
-            children: [...value.root.children, makeDefaultGroup().children[0]],
+            children: [...value.root.children, makeDefaultCondition()],
           };
           onChange({ ...value, root });
         }}
@@ -78,16 +83,16 @@ export default function TaskCard({
           onChange({ ...value, root });
         }}
         onToggleRelation={() => {
-          const root = {
+          const root: RuleGroup = {
             ...value.root,
             relation: value.root.relation === "and" ? "or" : "and",
           };
           onChange({ ...value, root });
         }}
-        onDeleteCondition={(id: any) => {
+        onDeleteCondition={(id: string) => {
           const root = {
             ...value.root,
-            children: value.root.children.filter((c:any) => c.id !== id),
+            children: value.root.children.filter((c) => c.id !== id),
           };
           onChange({ ...value, root });
         }}
